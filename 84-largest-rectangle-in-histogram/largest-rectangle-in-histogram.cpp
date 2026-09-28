@@ -1,31 +1,63 @@
 class Solution {
 public:
     int largestRectangleArea(vector<int>& heights) {
-        stack<int> st;
-        int maxArea = 0;
-
-        for (int i = 0; i <= heights.size(); i++) {
-
-            int currHeight = (i == heights.size()) ? 0 : heights[i];
-
-            while (!st.empty() && currHeight < heights[st.top()]) {
-
-                int height = heights[st.top()];
-                st.pop();
-
-                int width;
-
-                if (st.empty())
-                    width = i;
-                else
-                    width = i - st.top() - 1;
-
-                maxArea = max(maxArea, height * width);
+        
+        int n = heights.size();
+        
+        vector<int> left;
+        vector<int> right;
+        
+        stack<int> s;
+        
+        // Previous Smaller Element
+        for (int i = 0; i < n; i++) {
+            
+            while (!s.empty() && heights[s.top()] >= heights[i]) {
+                s.pop();
             }
-
-            st.push(i);
+            
+            if (s.empty()) {
+                left.push_back(-1);
+            }
+            else {
+                left.push_back(s.top());
+            }
+            
+            s.push(i);
         }
-
-        return maxArea;
+        
+        while (!s.empty()) {
+            s.pop();
+        }
+        
+        // Next Smaller Element
+        for (int i = n - 1; i >= 0; i--) {
+            
+            while (!s.empty() && heights[s.top()] >= heights[i]) {
+                s.pop();
+            }
+            
+            if (s.empty()) {
+                right.push_back(n);
+            }
+            else {
+                right.push_back(s.top());
+            }
+            
+            s.push(i);
+        }
+        
+        reverse(right.begin(), right.end());
+        
+        int ans = 0;
+        
+        for (int i = 0; i < n; i++) {
+            int width = right[i] - left[i] - 1;
+            int area = heights[i] * width;
+            
+            ans = max(ans, area);
+        }
+        
+        return ans;
     }
 };
